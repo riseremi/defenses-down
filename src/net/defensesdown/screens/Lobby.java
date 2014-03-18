@@ -1,23 +1,24 @@
 package net.defensesdown.screens;
 
-import net.defensesdown.framework.Utils;
-import net.defensesdown.framework.network.Client;
-import net.defensesdown.framework.network.Server;
-import net.defensesdown.framework.network.messages.MessageConnected;
-import net.defensesdown.framework.network.messages.MessageStartGame;
-import net.defensesdown.player.GameClient;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import net.defensesdown.framework.Utils;
+import net.defensesdown.framework.network.Client;
+import net.defensesdown.framework.network.Server;
+import net.defensesdown.framework.network.messages.MessageConnected;
+import net.defensesdown.framework.network.messages.MessageStartGame;
+import net.defensesdown.framework.network.messages.MessageSwapTeams;
+import net.defensesdown.player.GameClient;
 
 /**
- * User: riseremi
- * Date: 18.03.14
- * Time: 3:04
+ * User: riseremi Date: 18.03.14 Time: 3:04
  */
 public class Lobby extends JPanel implements ActionListener {
     public static final Random rnd = new Random();
@@ -60,7 +61,6 @@ public class Lobby extends JPanel implements ActionListener {
         swapTeams.addActionListener(this);
         swapTeams.setVisible(false);
 
-
         start.setBounds(Game.FRAME, Game.HEIGHT / 2 + Game.FRAME * 3 + 24, Game.WIDTH, 24);
         this.add(start);
         start.addActionListener(this);
@@ -77,7 +77,7 @@ public class Lobby extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand() == host.getActionCommand()) {
+        if (e.getActionCommand().equals(host.getActionCommand())) {
             unitsList.add(new GameClient(name.getText(), GameClient.WHITE));
             revalidateList();
 
@@ -94,7 +94,7 @@ public class Lobby extends JPanel implements ActionListener {
             swapTeams.setVisible(true);
         }
 
-        if (e.getActionCommand() == join.getActionCommand()) {
+        if (e.getActionCommand().equals(join.getActionCommand())) {
             unitsList.add(new GameClient(name.getText(), GameClient.BLACK));
             revalidateList();
 
@@ -107,19 +107,24 @@ public class Lobby extends JPanel implements ActionListener {
             join.setVisible(false);
         }
 
-        if (e.getActionCommand() == start.getActionCommand()) {
+        if (e.getActionCommand().equals(start.getActionCommand())) {
             try {
                 Server.getInstance().sendToAll(new MessageStartGame());
             } catch (IOException e1) {
             }
         }
 
-        if (e.getActionCommand() == swapTeams.getActionCommand()) {
-            int fraction = unitsList.get(0).getFraction();
-            int opposite = fraction == GameClient.BLACK ? GameClient.WHITE : GameClient.BLACK;
-            unitsList.get(0).setFraction(opposite);
-            unitsList.get(1).setFraction(fraction);
-            revalidateList();
+        if (e.getActionCommand().equals(swapTeams.getActionCommand())) {
+            try {
+                Server.getInstance().sendToAll(new MessageSwapTeams());
+
+//            int fraction = unitsList.get(0).getFraction();
+//            int opposite = fraction == GameClient.BLACK ? GameClient.WHITE : GameClient.BLACK;
+//            unitsList.get(0).setFraction(opposite);
+//            unitsList.get(1).setFraction(fraction);
+//            revalidateList();
+            } catch (IOException ex) {
+            }
         }
     }
 

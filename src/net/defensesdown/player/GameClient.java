@@ -1,15 +1,16 @@
 package net.defensesdown.player;
 
 /**
- * User: riseremi
- * Date: 18.03.14
- * Time: 12:13
+ * User: riseremi Date: 18.03.14 Time: 12:13
  */
 public class GameClient {
 
     public static final int WHITE = 1, BLACK = 0;
     private String name;
     private int fraction, id; //black 0, white 1
+
+    public GameClient() {
+    }
 
     public GameClient(String name, int fraction) {
         this.name = name;
@@ -18,6 +19,10 @@ public class GameClient {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getFraction() {

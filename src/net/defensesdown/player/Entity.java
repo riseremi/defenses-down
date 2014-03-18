@@ -4,9 +4,7 @@ import net.defensesdown.components.DrawableGameComponent;
 import net.defensesdown.world.Tile;
 
 /**
- * User: riseremi
- * Date: 18.03.14
- * Time: 1:38
+ * User: riseremi Date: 18.03.14 Time: 1:38
  */
 public abstract class Entity extends DrawableGameComponent {
     public static final int BOOST_MAX = 10;
@@ -47,6 +45,14 @@ public abstract class Entity extends DrawableGameComponent {
     public int getX() {
         return x;
     }
+
+    public int getOwner() {
+        return owner;
+    }
+
+//    public void setOwner(int owner) {
+//        this.owner = owner;
+//    }
 
     public void setX(int x) {
         this.x = x;

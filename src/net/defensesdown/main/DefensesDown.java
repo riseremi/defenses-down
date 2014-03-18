@@ -1,15 +1,14 @@
 package net.defensesdown.main;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 import net.defensesdown.screens.Game;
 import net.defensesdown.screens.Lobby;
 
-import javax.swing.*;
-import java.awt.*;
-
 /**
- * User: riseremi
- * Date: 18.03.14
- * Time: 1:23
+ * User: riseremi Date: 18.03.14 Time: 1:23
  */
 public class DefensesDown extends JFrame {
     private static Game game;
@@ -39,7 +38,6 @@ public class DefensesDown extends JFrame {
         core.setVisible(true);
         core.pack();
 
-
     }
 
     public static Game getGame() {
@@ -54,6 +52,8 @@ public class DefensesDown extends JFrame {
         core.remove(lobby);
         core.add(game);
         core.revalidate();
+        core.addKeyListener(game);
+        core.requestFocus();
 
     }
 }
