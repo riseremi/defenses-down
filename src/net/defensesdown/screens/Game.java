@@ -8,6 +8,8 @@ import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
+import net.defensesdown.framework.network.Client;
+import net.defensesdown.framework.network.messages.MessageSetPosition;
 import net.defensesdown.player.GameClient;
 import net.defensesdown.player.Unit;
 import net.defensesdown.world.Tile;
@@ -23,10 +25,13 @@ public class Game extends JPanel implements KeyListener {
     private World world;
     private ArrayList<Unit> units;
     private GameClient gameClient = new GameClient();
-    private Mode mode;
+    private Mode mode = Mode.SELECT;
     private final Rectangle cursor = new Rectangle(Tile.WIDTH, Tile.HEIGHT);
     int xx = FRAME;
     private boolean pressed = false;
+    private final Color SELECTION_COLOR = Color.RED, PLACE_COLOR = Color.BLUE;
+    private Color currentColor = SELECTION_COLOR;
+    private Unit selectionUnit;
 
     public Game() {
         try {
@@ -64,6 +69,41 @@ public class Game extends JPanel implements KeyListener {
             pressed = true;
             repaint();
         }
+
+        if (mode == Mode.SELECT) {
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (getSelectionUnit(cursor.x / Tile.WIDTH, cursor.y / Tile.HEIGHT) != null
+                        && getSelectionUnit(cursor.x / Tile.WIDTH, cursor.y / Tile.HEIGHT).getOwner()
+                        == getGameClient().getFraction()) {
+                    mode = Mode.PLACE_UNIT;
+                    currentColor = PLACE_COLOR;
+                    pressed = true;
+                    selectionUnit = getSelectionUnit(cursor.x / Tile.WIDTH, cursor.y / Tile.HEIGHT);
+                    repaint();
+                }
+            }
+        } else if (mode == Mode.PLACE_UNIT) {
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (getSelectionUnit(cursor.x / Tile.WIDTH, cursor.y / Tile.HEIGHT) == null
+                        || (getSelectionUnit(cursor.x / Tile.WIDTH, cursor.y / Tile.HEIGHT).getX() == selectionUnit.getX()
+                        && (getSelectionUnit(cursor.x / Tile.WIDTH, cursor.y / Tile.HEIGHT).getY() == selectionUnit.getY()))) {
+                    mode = Mode.SELECT;
+                    currentColor = SELECTION_COLOR;
+                    pressed = true;
+                    //selectionUnit.setX(cursor.x / Tile.WIDTH);
+                    //selectionUnit.setY(cursor.y / Tile.HEIGHT);
+
+                    try {
+                        MessageSetPosition msg = new MessageSetPosition(cursor.x / Tile.WIDTH, cursor.y / Tile.HEIGHT, selectionUnit.getId());
+                        System.out.println("sent: " + cursor.x / Tile.WIDTH + ":" + cursor.y / Tile.HEIGHT);
+                        Client.getInstance().send(msg);
+                    } catch (IOException ex) {
+                    }
+
+                    repaint();
+                }
+            }
+        }
     }
 
     @Override
@@ -79,7 +119,7 @@ public class Game extends JPanel implements KeyListener {
             units.get(i).paint(g);
         }
 
-        g.setColor(Color.red);
+        g.setColor(currentColor);
         g.drawRect(cursor.x + FRAME, cursor.y + FRAME, cursor.width, cursor.height);
 
         g.drawLine(cursor.x + FRAME, cursor.y + FRAME, cursor.width + cursor.x + FRAME,
@@ -102,6 +142,17 @@ public class Game extends JPanel implements KeyListener {
 
     public Rectangle getCursorRect() {
         return cursor;
+    }
+
+    private Unit getSelectionUnit(int x, int y) {
+        for (Unit unit : units) {
+            if (unit.getX() == x) {
+                if (unit.getY() == y) {
+                    return unit;
+                }
+            }
+        }
+        return null;
     }
 
 }

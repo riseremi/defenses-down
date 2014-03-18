@@ -14,8 +14,8 @@ import net.defensesdown.world.Tile;
 public class Unit extends Entity {
     private BufferedImage sprite;
 
-    public Unit(String pathToSprite, int ownerId, int x, int y, Type type) {
-        super(type, ownerId);
+    public Unit(String pathToSprite, int ownerId, int id, int x, int y, Type type) {
+        super(type, ownerId, id);
         setX(x);
         setY(y);
         try {
@@ -27,7 +27,7 @@ public class Unit extends Entity {
 
     @Override
     public void paint(Graphics g) {
-        System.out.println("" + getX() + ":" + getY() + ":" + getOwner());
+//        System.out.println("" + getX() + ":" + getY() + ":" + getOwner());
 
         final int x = getX() * Tile.WIDTH + Game.FRAME;
         final int y = getY() * Tile.HEIGHT + Game.FRAME;

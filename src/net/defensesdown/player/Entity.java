@@ -9,14 +9,15 @@ import net.defensesdown.world.Tile;
 public abstract class Entity extends DrawableGameComponent {
     public static final int BOOST_MAX = 10;
     private int hp, def, boost;
-    private int x, y;
+    private int x, y, id;
     private Type type;
     private int owner;
     private MovingStyle movingStyle;
 
-    public Entity(Type type, int ownerId) {
+    public Entity(Type type, int ownerId, int id) {
         this.owner = ownerId;
         this.type = type;
+        this.id = id;
         this.setStats(StatsBatch.getStatsFor(type));
     }
 
@@ -46,6 +47,22 @@ public abstract class Entity extends DrawableGameComponent {
         return x;
     }
 
+    public int getBoost() {
+        return boost;
+    }
+
+    public void setBoost(int boost) {
+        this.boost = boost;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public int getOwner() {
         return owner;
     }
@@ -53,7 +70,6 @@ public abstract class Entity extends DrawableGameComponent {
 //    public void setOwner(int owner) {
 //        this.owner = owner;
 //    }
-
     public void setX(int x) {
         this.x = x;
     }
