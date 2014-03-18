@@ -1,9 +1,4 @@
-
 package net.defensesdown.framework.network;
-
-
-import net.defensesdown.framework.network.messages.Message;
-import net.defensesdown.player.Unit;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import net.defensesdown.framework.network.messages.Message;
+import net.defensesdown.player.Unit;
 
 /**
  * @author Riseremi
@@ -60,7 +57,7 @@ public class Server {
         return instance;
     }
 
-    public static ArrayList<Unit> getUnits() {
+    public ArrayList<Unit> getUnits() {
         return units;
     }
 

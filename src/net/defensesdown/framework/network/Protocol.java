@@ -1,5 +1,6 @@
 package net.defensesdown.framework.network;
 
+import java.io.IOException;
 import net.defensesdown.framework.network.messages.Message;
 import net.defensesdown.framework.network.messages.MessageConnected;
 import net.defensesdown.framework.network.messages.MessageCreateUnit;
@@ -10,12 +11,12 @@ import net.defensesdown.player.GameClient;
 import net.defensesdown.player.Unit;
 import net.defensesdown.player.UnitCreator;
 
-import java.io.IOException;
-
 /**
  * @author riseremi
  */
 public class Protocol {
+    private static MessageConnected tempMessageConnected;
+
     public static void processOnServer(Message message, int id) throws IOException {
         Message.Type type = message.getType();
 
@@ -32,7 +33,8 @@ public class Protocol {
                 Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 7, 0, id));
 
                 if (Server.getInstance().isAllPlayersConnected()) {
-                    Server.getInstance().sendToOne(message, id);
+                    
+                    Server.getInstance().sendToOne(tempMessageConnected, id);
                     DefensesDown.getLobby().getUnitsList().add(new GameClient(messageConnected.getName(), messageConnected.getFraction()));
                     DefensesDown.getLobby().revalidateList();
 
@@ -49,6 +51,8 @@ public class Protocol {
                         MessageCreateUnit messageCreateUnit = new MessageCreateUnit(unit.getType(), unit.getX(), unit.getY(), id);
                         Server.getInstance().sendToAll(messageCreateUnit);
                     }
+                } else {
+                    tempMessageConnected = (MessageConnected) message;
                 }
                 break;
         }
