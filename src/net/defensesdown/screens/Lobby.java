@@ -42,26 +42,26 @@ public class Lobby extends JPanel implements ActionListener {
 
         this.setLayout(null);
 
-        name.setBounds(Game.FRAME, Game.HEIGHT - Game.FRAME, Game.WIDTH, 24);
+        name.setBounds(Game.FRAME, Game.GHEIGHT - Game.FRAME, Game.GWIDTH, 24);
         this.add(name);
 
-        playersList.setBounds(Game.FRAME, Game.FRAME, Game.WIDTH, Game.HEIGHT / 2);
+        playersList.setBounds(Game.FRAME, Game.FRAME, Game.GWIDTH, Game.GHEIGHT / 2);
         this.add(playersList);
 
-        host.setBounds(Game.FRAME, Game.HEIGHT / 2 + Game.FRAME * 2, Game.WIDTH / 2, 24);
+        host.setBounds(Game.FRAME, Game.GHEIGHT / 2 + Game.FRAME * 2, Game.GWIDTH / 2, 24);
         this.add(host);
         host.addActionListener(this);
 
-        join.setBounds(Game.FRAME + Game.WIDTH / 2, Game.HEIGHT / 2 + Game.FRAME * 2, Game.WIDTH / 2, 24);
+        join.setBounds(Game.FRAME + Game.GWIDTH / 2, Game.GHEIGHT / 2 + Game.FRAME * 2, Game.GWIDTH / 2, 24);
         this.add(join);
         join.addActionListener(this);
 
-        swapTeams.setBounds(Game.FRAME, Game.HEIGHT / 2 + Game.FRAME * 2, Game.WIDTH, 24);
+        swapTeams.setBounds(Game.FRAME, Game.GHEIGHT / 2 + Game.FRAME * 2, Game.GWIDTH, 24);
         this.add(swapTeams);
         swapTeams.addActionListener(this);
         swapTeams.setVisible(false);
 
-        start.setBounds(Game.FRAME, Game.HEIGHT / 2 + Game.FRAME * 3 + 24, Game.WIDTH, 24);
+        start.setBounds(Game.FRAME, Game.GHEIGHT / 2 + Game.FRAME * 3 + 24, Game.GWIDTH, 24);
         this.add(start);
         start.addActionListener(this);
         start.setVisible(false);
@@ -78,13 +78,13 @@ public class Lobby extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(host.getActionCommand())) {
-            unitsList.add(new GameClient(name.getText(), GameClient.WHITE));
+            unitsList.add(new GameClient(name.getText(), GameClient.BLACK));
             revalidateList();
 
             Server.getInstance();
             //Client.getInstance();
             try {
-                Client.getInstance().send(new MessageConnected(name.getText(), GameClient.WHITE));
+                Client.getInstance().send(new MessageConnected(name.getText(), GameClient.BLACK));
             } catch (IOException e1) {
             }
             host.setVisible(false);
@@ -95,12 +95,12 @@ public class Lobby extends JPanel implements ActionListener {
         }
 
         if (e.getActionCommand().equals(join.getActionCommand())) {
-            unitsList.add(new GameClient(name.getText(), GameClient.BLACK));
+            unitsList.add(new GameClient(name.getText(), GameClient.WHITE));
             revalidateList();
 
             //Client.getInstance();
             try {
-                Client.getInstance().send(new MessageConnected(name.getText(), GameClient.BLACK));
+                Client.getInstance().send(new MessageConnected(name.getText(), GameClient.WHITE));
             } catch (IOException e1) {
             }
             host.setVisible(false);
@@ -117,12 +117,6 @@ public class Lobby extends JPanel implements ActionListener {
         if (e.getActionCommand().equals(swapTeams.getActionCommand())) {
             try {
                 Server.getInstance().sendToAll(new MessageSwapTeams());
-
-//            int fraction = unitsList.get(0).getFraction();
-//            int opposite = fraction == GameClient.BLACK ? GameClient.WHITE : GameClient.BLACK;
-//            unitsList.get(0).setFraction(opposite);
-//            unitsList.get(1).setFraction(fraction);
-//            revalidateList();
             } catch (IOException ex) {
             }
         }

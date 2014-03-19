@@ -1,6 +1,6 @@
 package net.defensesdown.world;
 
-import java.awt.*;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,10 +127,10 @@ public class TiledLayer extends Layer {
     protected void paintLayer(Graphics g) {
         for (int i = 0; i < paintWidth; i++) {
             for (int j = 0; j < paintHeight; j++) {
-                //try {
+                try {
                 paintTile(g, i * tileWidth, j * tileHeight, map[i - (getBlocksX())][j - (getBlocksY())].getId());
-                //} catch (Exception ex) {
-                //}
+                } catch (Exception ex) {
+                }
             }
         }
     }

@@ -8,7 +8,7 @@ import net.defensesdown.world.Tile;
  */
 public abstract class Entity extends DrawableGameComponent {
     public static final int BOOST_MAX = 10;
-    private int hp, def, boost;
+    private int hp, maxHp, def, attack, boost;
     private int x, y, id;
     private Type type;
     private int owner;
@@ -21,9 +21,11 @@ public abstract class Entity extends DrawableGameComponent {
         this.setStats(StatsBatch.getStatsFor(type));
     }
 
-    public void setStats(StatsBatch statsBatch) {
+    public final void setStats(StatsBatch statsBatch) {
         this.setHp(statsBatch.getHp());
         this.setDef(statsBatch.getDef());
+        this.setAttack(statsBatch.getAttack());
+        this.setMaxHp(statsBatch.getHp());
         this.setMovingStyle(statsBatch.getMovingStyle());
     }
 
@@ -31,8 +33,24 @@ public abstract class Entity extends DrawableGameComponent {
         return hp;
     }
 
+    public int getMaxHp() {
+        return maxHp;
+    }
+
+    public void setMaxHp(int maxHp) {
+        this.maxHp = maxHp;
+    }
+
     private void setHp(int hp) {
         this.hp = hp;
+    }
+
+    public int getAttack() {
+        return attack;
+    }
+
+    public void setAttack(int attack) {
+        this.attack = attack;
     }
 
     public int getY() {

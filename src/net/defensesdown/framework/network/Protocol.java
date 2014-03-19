@@ -6,12 +6,12 @@ import net.defensesdown.framework.network.messages.MessageConnected;
 import net.defensesdown.framework.network.messages.MessageCreateUnit;
 import net.defensesdown.framework.network.messages.MessageSetPlayerId;
 import net.defensesdown.framework.network.messages.MessageSetPosition;
+import net.defensesdown.framework.network.messages.MessageSwapTeams;
 import net.defensesdown.main.DefensesDown;
 import net.defensesdown.player.Entity;
 import net.defensesdown.player.GameClient;
 import net.defensesdown.player.Unit;
 import net.defensesdown.player.UnitCreator;
-import net.defensesdown.screens.Lobby;
 
 /**
  * @author riseremi
@@ -34,8 +34,7 @@ public class Protocol {
                     DefensesDown.getLobby().revalidateList();
 
                     Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 0, 7, id1++, id));
-//                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, 1, 7, id1++, id));
-                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, Lobby.rnd.nextInt(8), Lobby.rnd.nextInt(8), id1++, id));
+                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, 1, 7, id1++, id));
                     Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 2, 7, id1++, id));
 
                     Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 5, 7, id1++, id));
@@ -46,16 +45,14 @@ public class Protocol {
                         Unit unit = Server.getInstance().getUnits().get(i);
                         MessageCreateUnit messageCreateUnit = new MessageCreateUnit(unit.getType(), unit.getX(), unit.getY(), unit.getId(), unit.getOwner());
                         Server.getInstance().sendToAll(messageCreateUnit);
-
-//                        System.out.println(unit.toString());
                     }
+                    Server.getInstance().sendToAll(new MessageSwapTeams());
                 } else {
                     tempMessageConnected = (MessageConnected) message;
                 }
 
                 Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 0, 0, id1++, id));
-//                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, 1, 0, id));
-                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, Lobby.rnd.nextInt(8), Lobby.rnd.nextInt(8), id1++, id));
+                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, 1, 0, id1++, id));
                 Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 2, 0, id1++, id));
 
                 Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 5, 0, id1++, id));
@@ -102,7 +99,7 @@ public class Protocol {
                 DefensesDown.getLobby().getUnitsList().get(0).setFraction(opposite);
                 DefensesDown.getLobby().getUnitsList().get(1).setFraction(fraction);
                 DefensesDown.getLobby().revalidateList();
-                //DefensesDown.getGame().getGameClient().setFraction(opposite);
+                DefensesDown.getGame().getGameClient().setFraction(opposite);
                 break;
             case SET_POSITION:
                 MessageSetPosition messageSetPosition = ((MessageSetPosition) message);

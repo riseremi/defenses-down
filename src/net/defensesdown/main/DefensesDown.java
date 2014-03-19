@@ -18,13 +18,15 @@ public class DefensesDown extends JFrame {
     public DefensesDown() {
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setTitle("Defenses Down");
+        
+        //System.out.println(Game.GWIDTH);
 
-        Dimension preferredSize = new Dimension(Game.WIDTH + Game.FRAME * 2, Game.HEIGHT + Game.FRAME * 2);
+        Dimension preferredSize = new Dimension(Game.GWIDTH + Game.FRAME * 2, Game.GHEIGHT + Game.FRAME * 2);
         this.getContentPane().setPreferredSize(preferredSize);
         this.setResizable(false);
 
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(dimension.width / 2 - Game.WIDTH / 2, dimension.height / 2 - Game.HEIGHT / 2);
+        this.setLocation(dimension.width / 2 - Game.GWIDTH / 2, dimension.height / 2 - Game.GHEIGHT / 2);
 
     }
 

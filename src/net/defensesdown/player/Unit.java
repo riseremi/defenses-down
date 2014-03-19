@@ -13,6 +13,7 @@ import net.defensesdown.world.Tile;
  */
 public class Unit extends Entity {
     private BufferedImage sprite;
+    private BufferedImage moveScheme;
 
     public Unit(String pathToSprite, int ownerId, int id, int x, int y, Type type) {
         super(type, ownerId, id);
@@ -20,6 +21,7 @@ public class Unit extends Entity {
         setY(y);
         try {
             sprite = ImageIO.read(Unit.class.getResourceAsStream(pathToSprite));
+            moveScheme = ImageIO.read(Unit.class.getResourceAsStream("/res/schemes/" + type.name().toLowerCase() + ".png"));
         } catch (IOException e) {
             System.out.println("Cannot load image.");
         }
@@ -34,7 +36,6 @@ public class Unit extends Entity {
 
         g.drawImage(sprite, x, y, null);
 
-        //Graphics g2 = sprite.getGraphics();
         if (getOwner() == GameClient.BLACK) {
             g.setColor(new Color(0, 0, 0));
         } else if (getOwner() == GameClient.WHITE) {
@@ -42,8 +43,11 @@ public class Unit extends Entity {
         }
         g.drawRect(x, y, Tile.WIDTH, Tile.HEIGHT);
         g.drawRect(x + 1, y + 1, Tile.WIDTH - 2, Tile.HEIGHT - 2);
-//        g.drawRect(x + 2, y + 2, Tile.WIDTH - 4, Tile.HEIGHT - 4);
 
+    }
+
+    public BufferedImage getMoveScheme() {
+        return moveScheme;
     }
 
     @Override
