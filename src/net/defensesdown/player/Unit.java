@@ -14,6 +14,7 @@ import net.defensesdown.world.Tile;
 public class Unit extends Entity {
     private BufferedImage sprite;
     private BufferedImage moveScheme;
+    private int[] movementScheme;
 
     public Unit(String pathToSprite, int ownerId, int id, int x, int y, Type type) {
         super(type, ownerId, id);
