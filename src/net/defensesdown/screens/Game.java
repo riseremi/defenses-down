@@ -23,6 +23,7 @@ import net.defensesdown.world.World;
  * User: riseremi Date: 18.03.14 Time: 3:04
  */
 public class Game extends JPanel implements KeyListener {
+
     public static final int BWIDTH = 8, BHEIGHT = 8;
     public static final int GWIDTH = Tile.WIDTH * BWIDTH;
     public static final int GHEIGHT = Tile.HEIGHT * BHEIGHT;
@@ -113,16 +114,16 @@ public class Game extends JPanel implements KeyListener {
                 if (getSelectionUnit(cursor.x, cursor.y) == null
                         || (getSelectionUnit(cursor.x, cursor.y).getX() == selectionUnit.getX() / Tile.WIDTH
                         && (getSelectionUnit(cursor.x, cursor.y).getY() == selectionUnit.getY() / Tile.HEIGHT))) {
-                    mode = Mode.SELECT;
-                    currentColor = SELECTION_COLOR;
-                    pressed = true;
-                    //selectionUnit.setX(cursor.x / Tile.GWIDTH);
-                    //selectionUnit.setY(cursor.y / Tile.GHEIGHT);
-
                     try {
-                        MessageSetPosition msg = new MessageSetPosition(cursor.x, cursor.y, selectionUnit.getId());
-                        System.out.println("sent: " + cursor.x + ":" + cursor.y);
-                        Client.getInstance().send(msg);
+                        if (selectionUnit.isCellAvailable(cursor.x, cursor.y, selectionUnit.getX(), selectionUnit.getY())) {
+                            mode = Mode.SELECT;
+                            currentColor = SELECTION_COLOR;
+                            pressed = true;
+
+                            MessageSetPosition msg = new MessageSetPosition(cursor.x, cursor.y, selectionUnit.getId());
+                            System.out.println("sent: " + cursor.x + ":" + cursor.y);
+                            Client.getInstance().send(msg);
+                        }
                     } catch (IOException ex) {
                     }
 
@@ -158,7 +159,7 @@ public class Game extends JPanel implements KeyListener {
             int x = cursor.x > 3 ? FRAME : GWIDTH / 2 + FRAME + 8;
             //g.fillRect(x, FRAME, GWIDTH / 2, GHEIGHT);
             g.drawImage(paperImgLarge, cursor.x > 3 ? FRAME : GWIDTH / 2 + FRAME, FRAME, this);
-            
+
             int pref = 16;
 
             g.drawString(selectionUnit1.getType().name(), x, FRAME + 16);
@@ -183,6 +184,7 @@ public class Game extends JPanel implements KeyListener {
     }
 
     public enum Mode {
+
         WAIT, SELECT, PLACE_UNIT
     }
 

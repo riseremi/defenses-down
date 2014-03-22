@@ -12,6 +12,25 @@ import net.defensesdown.world.Tile;
  * User: riseremi Date: 18.03.14 Time: 1:39
  */
 public class Unit extends Entity {
+
+    public static final int[] KNIGHT_MS = {
+        0, 1, 0,
+        1, 0, 1,
+        0, 1, 0
+    };
+
+    public static final int[] RANGER_MS = {
+        1, 1, 1,
+        1, 0, 1,
+        1, 1, 1
+    };
+
+    public static final int[] TOWER_MS = {
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0
+    };
+
     private BufferedImage sprite;
     private BufferedImage moveScheme;
     private int[] movementScheme;
@@ -20,6 +39,19 @@ public class Unit extends Entity {
         super(type, ownerId, id);
         setX(x);
         setY(y);
+
+        switch (type) {
+            case KNIGHT:
+                movementScheme = KNIGHT_MS;
+                break;
+            case RANGER:
+                movementScheme = RANGER_MS;
+                break;
+            case TOWER:
+                movementScheme = TOWER_MS;
+                break;
+
+        }
         try {
             sprite = ImageIO.read(Unit.class.getResourceAsStream(pathToSprite));
             moveScheme = ImageIO.read(Unit.class.getResourceAsStream("/res/schemes/" + type.name().toLowerCase() + ".png"));
@@ -49,6 +81,28 @@ public class Unit extends Entity {
 
     public BufferedImage getMoveScheme() {
         return moveScheme;
+    }
+
+    public boolean isCellAvailable(int cx, int cy, int hx, int hy) {
+        int[][] map = new int[8][8];
+        setValue(map, hx - 1, hy - 1, movementScheme[0]);
+        setValue(map, hx, hy - 1, movementScheme[1]);
+        setValue(map, hx + 1, hy - 1, movementScheme[2]);
+
+        setValue(map, hx - 1, hy, movementScheme[3]);
+        setValue(map, hx + 1, hy, movementScheme[5]);
+
+        setValue(map, hx - 1, hy + 1, movementScheme[6]);
+        setValue(map, hx, hy + 1, movementScheme[7]);
+        setValue(map, hx + 1, hy + 1, movementScheme[8]);
+
+        return map[cx][cy] == 1;
+    }
+
+    private void setValue(int[][] map, int x, int y, int value) {
+        if (x >= 0 && y >= 0 && x <= 7 && y <= 7) {
+            map[x][y] = value;
+        }
     }
 
     @Override
