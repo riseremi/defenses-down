@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import net.defensesdown.framework.network.Client;
+import net.defensesdown.framework.network.messages.Message;
+import net.defensesdown.framework.network.messages.MessageEndTurn;
 import net.defensesdown.framework.network.messages.MessageSetPosition;
+import net.defensesdown.main.DefensesDown;
 import net.defensesdown.player.Entity;
 import net.defensesdown.player.GameClient;
 import net.defensesdown.player.Unit;
@@ -40,6 +43,7 @@ public class Game extends JPanel implements KeyListener {
     private Unit selectionUnit;
     private TiledLayer paper;
     private BufferedImage paperImg, paperImgLarge;
+    private boolean myTurn;
 
     public Game() {
         try {
@@ -71,28 +75,32 @@ public class Game extends JPanel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if (!pressed && myTurn) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_DOWN:
+                    cursor.y = cursor.y >= BHEIGHT - 1 ? BHEIGHT - 1 : cursor.y + 1;
+                    pressed = true;
+                    break;
+                case KeyEvent.VK_UP:
+                    cursor.y = cursor.y <= 0 ? 0 : cursor.y - 1;
+                    pressed = true;
+                    break;
+                case KeyEvent.VK_LEFT:
+                    cursor.x = cursor.x <= 0 ? 0 : cursor.x - 1;
+                    pressed = true;
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    cursor.x = cursor.x >= BWIDTH - 1 ? BWIDTH - 1 : cursor.x + 1;
+                    pressed = true;
+                    break;
+            }
+            repaint();
+        }
 
-        if (e.getKeyCode() == KeyEvent.VK_DOWN && !pressed) {
-//            cursor.y = cursor.y >= 32 * 7 ? 32 * 7 : cursor.y + 32;
-            cursor.y = cursor.y >= BHEIGHT - 1 ? BHEIGHT - 1 : cursor.y + 1;
-            pressed = true;
-            repaint();
-        }
-        if (e.getKeyCode() == KeyEvent.VK_UP && !pressed) {
-//            cursor.y = cursor.y <= 0 ? 0 : cursor.y - 32;
-            cursor.y = cursor.y <= 0 ? 0 : cursor.y - 1;
-            pressed = true;
-            repaint();
-        }
-        if (e.getKeyCode() == KeyEvent.VK_LEFT && !pressed) {
-//            cursor.x = cursor.x <= 0 ? 0 : cursor.x - 32;
-            cursor.x = cursor.x <= 0 ? 0 : cursor.x - 1;
-            pressed = true;
-            repaint();
-        }
-        if (e.getKeyCode() == KeyEvent.VK_RIGHT && !pressed) {
-//            cursor.x = cursor.x >= 32 * 7 ? 32 * 7 : cursor.x + 32;
-            cursor.x = cursor.x >= BWIDTH - 1 ? BWIDTH - 1 : cursor.x + 1;
+        //kostyl
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            mode = Mode.SELECT;
+            currentColor = SELECTION_COLOR;
             pressed = true;
             repaint();
         }
@@ -120,13 +128,17 @@ public class Game extends JPanel implements KeyListener {
                             currentColor = SELECTION_COLOR;
                             pressed = true;
 
-                            MessageSetPosition msg = new MessageSetPosition(cursor.x, cursor.y, selectionUnit.getId());
-                            System.out.println("sent: " + cursor.x + ":" + cursor.y);
+                            Message msg = new MessageSetPosition(cursor.x, cursor.y, selectionUnit.getId());
                             Client.getInstance().send(msg);
+
+                            msg = new MessageEndTurn();
+                            Client.getInstance().send(msg);
+
+                            DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
+                            myTurn = false;
                         }
                     } catch (IOException ex) {
                     }
-
                     repaint();
                 }
             }
@@ -142,22 +154,18 @@ public class Game extends JPanel implements KeyListener {
     protected void paintComponent(Graphics g) {
         world.paint(g);
 
-        for (int i = 0; i < units.size(); i++) {
-            units.get(i).paint(g);
+        for (Unit unit : units) {
+            unit.paint(g);
         }
+
+        final Unit selectionUnit1 = getSelectionUnit(cursor.x, cursor.y);
 
         g.setColor(currentColor);
         g.drawRect(cursor.x * Tile.WIDTH + FRAME, cursor.y * Tile.HEIGHT + FRAME, cursor.width, cursor.height);
-        final Unit selectionUnit1 = getSelectionUnit(cursor.x, cursor.y);
 
-//        g.drawLine(cursor.x + FRAME, cursor.y + FRAME, cursor.width + cursor.x + FRAME,
-//                cursor.height + cursor.y + FRAME);
-//        g.drawLine(cursor.x + FRAME + cursor.width, cursor.y + FRAME, cursor.x + FRAME,
-//                cursor.height + cursor.y + FRAME);
         if (selectionUnit1 != null) {
             g.setColor(Color.WHITE);
             int x = cursor.x > 3 ? FRAME : GWIDTH / 2 + FRAME + 8;
-            //g.fillRect(x, FRAME, GWIDTH / 2, GHEIGHT);
             g.drawImage(paperImgLarge, cursor.x > 3 ? FRAME : GWIDTH / 2 + FRAME, FRAME, this);
 
             int pref = 16;
@@ -171,7 +179,6 @@ public class Game extends JPanel implements KeyListener {
 
             g.drawString("MOVE SCHEME:", x, FRAME + 16 + pref * 7);
             g.drawImage(selectionUnit1.getMoveScheme(), x, FRAME + 16 + pref * 7 + 8, this);
-
         }
     }
 
@@ -190,6 +197,14 @@ public class Game extends JPanel implements KeyListener {
 
     public Rectangle getCursorRect() {
         return cursor;
+    }
+
+    public boolean isMyTurn() {
+        return myTurn;
+    }
+
+    public void setMyTurn(boolean myTurn) {
+        this.myTurn = myTurn;
     }
 
     private Unit getSelectionUnit(int x, int y) {

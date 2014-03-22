@@ -50,7 +50,6 @@ public class Unit extends Entity {
             case TOWER:
                 movementScheme = TOWER_MS;
                 break;
-
         }
         try {
             sprite = ImageIO.read(Unit.class.getResourceAsStream(pathToSprite));
@@ -97,6 +96,17 @@ public class Unit extends Entity {
         setValue(map, hx + 1, hy + 1, movementScheme[8]);
 
         return map[cx][cy] == 1;
+    }
+
+    public void drawMovement(int[][] m, Graphics g) {
+        g.setColor(new Color(200, 0, 0, 100));
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m.length; j++) {
+                if (m[i][j] != 0) {
+                    g.fillRect(i * Tile.WIDTH, j * Tile.HEIGHT, Tile.WIDTH, Tile.HEIGHT);
+                }
+            }
+        }
     }
 
     private void setValue(int[][] map, int x, int y, int value) {
