@@ -117,42 +117,48 @@ public class Game extends JPanel implements KeyListener {
             repaint();
         }
 
-        if (mode == Mode.SELECT) {
-            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                if (getSelectionUnit(cursor.x, cursor.y) != null
-                        && getSelectionUnit(cursor.x, cursor.y).getOwner()
-                        == getGameClient().getFraction()) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (mode == Mode.SELECT) {
+                if (getSelectedUnit(cursor.x, cursor.y) != null
+                        && getSelectedUnit(cursor.x, cursor.y).isOwned()) {
                     mode = Mode.PLACE_UNIT;
                     currentColor = PLACE_COLOR;
                     pressed = true;
-                    selectedUnit = getSelectionUnit(cursor.x, cursor.y);
+                    selectedUnit = getSelectedUnit(cursor.x, cursor.y);
                     repaint();
                 }
-            }
-        } else if (mode == Mode.PLACE_UNIT) {
-            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                if (getSelectionUnit(cursor.x, cursor.y) == null
-                        || (getSelectionUnit(cursor.x, cursor.y).getX() == selectedUnit.getX() / Tile.WIDTH
-                        && (getSelectionUnit(cursor.x, cursor.y).getY() == selectedUnit.getY() / Tile.HEIGHT))) {
+
+            } else if (mode == Mode.PLACE_UNIT) {
+                final int x = selectedUnit.getX();
+                final int y = selectedUnit.getY();
+//                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (getSelectedUnit(cursor.x, cursor.y) == null || (getSelectedUnit(cursor.x, cursor.y).getX() == x
+                        && (getSelectedUnit(cursor.x, cursor.y).getY() == y))) {
                     try {
-                        if (selectedUnit.isCellAvailable(cursor.x, cursor.y, selectedUnit.getX(), selectedUnit.getY())) {
+                        System.out.println("x: " + x + " y: " + y);
+                        System.out.println("сx: " + cursor.x + " сy: " + cursor.y);
+                        System.out.println();
+                        if (selectedUnit.isCellAvailable(cursor.x, cursor.y, x, y)) {
                             mode = Mode.SELECT;
                             currentColor = SELECTION_COLOR;
                             pressed = true;
 
-                            Message msg = new MessageSetPosition(cursor.x, cursor.y, selectedUnit.getId());
-                            Client.getInstance().send(msg);
+                            if (cursor.x != x || cursor.y != y) {
+                                Message msg = new MessageSetPosition(cursor.x, cursor.y, selectedUnit.getId());
+                                Client.getInstance().send(msg);
 
-                            msg = new MessageEndTurn();
-                            Client.getInstance().send(msg);
+                                msg = new MessageEndTurn();
+                                Client.getInstance().send(msg);
 
-                            DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
-                            myTurn = false;
+                                DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
+                                myTurn = false;
+                            }
                         }
                     } catch (IOException ex) {
                     }
                     repaint();
                 }
+//                }
             }
         }
     }
@@ -171,7 +177,7 @@ public class Game extends JPanel implements KeyListener {
         }
 
         if (mode == Mode.SELECT) {
-            selectedUnit = getSelectionUnit(cursor.x, cursor.y);
+            selectedUnit = getSelectedUnit(cursor.x, cursor.y);
         }
 
         int x = GWIDTH - SIDEBAR_WIDTH + FRAME;
@@ -225,7 +231,7 @@ public class Game extends JPanel implements KeyListener {
         this.myTurn = myTurn;
     }
 
-    private Unit getSelectionUnit(int x, int y) {
+    private Unit getSelectedUnit(int x, int y) {
         for (Unit unit : units) {
             if (unit.getX() == x) {
                 if (unit.getY() == y) {

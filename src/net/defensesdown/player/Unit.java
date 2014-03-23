@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import net.defensesdown.main.DefensesDown;
 import net.defensesdown.screens.Game;
 import net.defensesdown.world.Tile;
 
@@ -15,19 +16,19 @@ public class Unit extends Entity {
 
     public static final int[] KNIGHT_MS = {
         0, 1, 0,
-        1, 0, 1,
+        1, 1, 1,
         0, 1, 0
     };
 
     public static final int[] RANGER_MS = {
         1, 1, 1,
-        1, 0, 1,
+        1, 1, 1,
         1, 1, 1
     };
 
     public static final int[] TOWER_MS = {
         0, 0, 0,
-        0, 0, 0,
+        0, 1, 0,
         0, 0, 0
     };
 
@@ -90,6 +91,7 @@ public class Unit extends Entity {
         setValue(map, hx + 1, hy - 1, movementScheme[2]);
 
         setValue(map, hx - 1, hy, movementScheme[3]);
+        setValue(map, hx, hy, movementScheme[4]);
         setValue(map, hx + 1, hy, movementScheme[5]);
 
         setValue(map, hx - 1, hy + 1, movementScheme[6]);
@@ -118,6 +120,10 @@ public class Unit extends Entity {
 
     @Override
     public void update() {
+    }
+
+    public boolean isOwned() {
+        return getOwner() == DefensesDown.getGame().getGameClient().getFraction();
     }
 
     @Override
