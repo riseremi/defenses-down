@@ -1,12 +1,11 @@
 package net.defensesdown.world;
 
 /**
- * User: riseremi
- * Date: 18.03.14
- * Time: 2:57
+ * User: riseremi Date: 18.03.14 Time: 2:57
  */
 public class Tile {
-    public static final int WIDTH = 32, HEIGHT = 32;
+
+    public static int WIDTH, HEIGHT;
     private int id;
     private boolean walkable;
 
@@ -29,5 +28,13 @@ public class Tile {
 
     public void setWalkable(boolean walkable) {
         this.walkable = walkable;
+    }
+
+    public static void init(boolean isHD) {
+        if (isHD) {
+            WIDTH = HEIGHT = 64;
+        } else {
+            WIDTH = HEIGHT = 32;
+        }
     }
 }

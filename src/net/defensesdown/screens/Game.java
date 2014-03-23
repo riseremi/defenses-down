@@ -28,39 +28,51 @@ import net.defensesdown.world.World;
 public class Game extends JPanel implements KeyListener {
 
     public static final int BWIDTH = 8, BHEIGHT = 8;
-    public static final int GWIDTH = Tile.WIDTH * BWIDTH;
-    public static final int GHEIGHT = Tile.HEIGHT * BHEIGHT;
-    public static final int FRAME = 13;
+    public static int SIDEBAR_WIDTH, SIDEBAR_HEIGHT;
+    public static int GWIDTH;
+    public static int GHEIGHT;
+    public static int FRAME;
     private World world;
     private final ArrayList<Unit> units;
     private final GameClient gameClient = new GameClient();
     private Mode mode = Mode.SELECT;
-    private final Rectangle cursor = new Rectangle(Tile.WIDTH, Tile.HEIGHT);
-    int xx = FRAME;
+    private final Rectangle cursor;
     private boolean pressed = false;
     private final Color SELECTION_COLOR = Color.RED, PLACE_COLOR = Color.BLUE;
     private Color currentColor = SELECTION_COLOR;
-    private Unit selectionUnit;
+    private Unit selectedUnit;
     private TiledLayer paper;
     private BufferedImage paperImg, paperImgLarge;
     private boolean myTurn;
+    private final static String TILES_NORMAL = "/res/tiles.png";
+    private final static String TILES_HD = "/res/tilesHD.png";
 
-    public Game() {
+    public Game(boolean isHD) {
+        Tile.init(isHD);
+        FRAME = isHD ? 26 : 13;
+        SIDEBAR_WIDTH = BWIDTH / 2 * Tile.WIDTH;
+        GWIDTH = Tile.WIDTH * BWIDTH + FRAME + SIDEBAR_WIDTH;
+        GHEIGHT = Tile.HEIGHT * BHEIGHT;
+        SIDEBAR_HEIGHT = GHEIGHT;
+
+        String pathToTileset = isHD ? TILES_HD : TILES_NORMAL;
+        cursor = new Rectangle(Tile.WIDTH, Tile.HEIGHT);
+
         try {
-            world = new World("/res/tiles.png", BWIDTH, BHEIGHT);
+            world = new World(pathToTileset, BWIDTH, BHEIGHT);
             world.setLayerPosition(FRAME, FRAME);
-            paper = new TiledLayer(ImageIO.read(Unit.class.getResourceAsStream("/res/tiles.png")), Tile.WIDTH, Tile.HEIGHT, BWIDTH / 2, BHEIGHT, BWIDTH, BHEIGHT);
+            paper = new TiledLayer(ImageIO.read(Unit.class.getResourceAsStream(pathToTileset)), Tile.WIDTH, Tile.HEIGHT, BWIDTH / 2, BHEIGHT, BWIDTH, BHEIGHT);
             paper.fillRectTile(0, 0, paper.getHorizontalTilesNumber(), paper.getVerticalTilesNumber(), 3);
             paper.setY(FRAME);
 
             paperImg = ImageIO.read(Unit.class.getResourceAsStream("/res/paper.png"));
-            paperImgLarge = new BufferedImage(BWIDTH / 2 * Tile.WIDTH, BHEIGHT * Tile.HEIGHT, BufferedImage.TYPE_INT_RGB);
+            paperImgLarge = new BufferedImage(SIDEBAR_WIDTH, SIDEBAR_HEIGHT, BufferedImage.TYPE_INT_RGB);
 
             Graphics g = paperImgLarge.getGraphics();
 
             for (int i = 0; i < BWIDTH / 2; i++) {
                 for (int j = 0; j < BHEIGHT; j++) {
-                    g.drawImage(paperImg, i * Tile.WIDTH, j * Tile.HEIGHT, this);
+                    g.drawImage(paperImg.getScaledInstance(Tile.WIDTH, Tile.HEIGHT, 3), i * Tile.WIDTH, j * Tile.HEIGHT, this);
                 }
 
             }
@@ -113,22 +125,22 @@ public class Game extends JPanel implements KeyListener {
                     mode = Mode.PLACE_UNIT;
                     currentColor = PLACE_COLOR;
                     pressed = true;
-                    selectionUnit = getSelectionUnit(cursor.x, cursor.y);
+                    selectedUnit = getSelectionUnit(cursor.x, cursor.y);
                     repaint();
                 }
             }
         } else if (mode == Mode.PLACE_UNIT) {
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 if (getSelectionUnit(cursor.x, cursor.y) == null
-                        || (getSelectionUnit(cursor.x, cursor.y).getX() == selectionUnit.getX() / Tile.WIDTH
-                        && (getSelectionUnit(cursor.x, cursor.y).getY() == selectionUnit.getY() / Tile.HEIGHT))) {
+                        || (getSelectionUnit(cursor.x, cursor.y).getX() == selectedUnit.getX() / Tile.WIDTH
+                        && (getSelectionUnit(cursor.x, cursor.y).getY() == selectedUnit.getY() / Tile.HEIGHT))) {
                     try {
-                        if (selectionUnit.isCellAvailable(cursor.x, cursor.y, selectionUnit.getX(), selectionUnit.getY())) {
+                        if (selectedUnit.isCellAvailable(cursor.x, cursor.y, selectedUnit.getX(), selectedUnit.getY())) {
                             mode = Mode.SELECT;
                             currentColor = SELECTION_COLOR;
                             pressed = true;
 
-                            Message msg = new MessageSetPosition(cursor.x, cursor.y, selectionUnit.getId());
+                            Message msg = new MessageSetPosition(cursor.x, cursor.y, selectedUnit.getId());
                             Client.getInstance().send(msg);
 
                             msg = new MessageEndTurn();
@@ -158,28 +170,34 @@ public class Game extends JPanel implements KeyListener {
             unit.paint(g);
         }
 
-        final Unit selectionUnit1 = getSelectionUnit(cursor.x, cursor.y);
+        if (mode == Mode.SELECT) {
+            selectedUnit = getSelectionUnit(cursor.x, cursor.y);
+        }
 
-        g.setColor(currentColor);
-        g.drawRect(cursor.x * Tile.WIDTH + FRAME, cursor.y * Tile.HEIGHT + FRAME, cursor.width, cursor.height);
+        int x = GWIDTH - SIDEBAR_WIDTH + FRAME;
+        int pref = 16;
 
-        if (selectionUnit1 != null) {
-            g.setColor(Color.WHITE);
-            int x = cursor.x > 3 ? FRAME : GWIDTH / 2 + FRAME + 8;
-            g.drawImage(paperImgLarge, cursor.x > 3 ? FRAME : GWIDTH / 2 + FRAME, FRAME, this);
+        g.drawImage(paperImgLarge, x, FRAME, this);
 
-            int pref = 16;
+        g.setColor(Color.WHITE);
 
-            g.drawString(selectionUnit1.getType().name(), x, FRAME + 16);
+        if (selectedUnit != null) {
+            g.drawString(selectedUnit.getType().name(), x, FRAME + 16);
             //stats
-            g.drawString("HP: " + selectionUnit1.getHp() + "/" + selectionUnit1.getMaxHp(), x, FRAME + 16 + pref * 2);
-            g.drawString("DEF: " + selectionUnit1.getDef(), x, FRAME + 16 + pref * 3);
-            g.drawString("ATK: " + selectionUnit1.getAttack(), x, FRAME + 16 + pref * 4);
-            g.drawString("BOOST: " + selectionUnit1.getBoost() + "/" + Entity.BOOST_MAX, x, FRAME + 16 + pref * 5);
+            g.drawString("HP: " + selectedUnit.getHp() + "/" + selectedUnit.getMaxHp(), x, FRAME + 16 + pref * 2);
+            g.drawString("DEF: " + selectedUnit.getDef(), x, FRAME + 16 + pref * 3);
+            g.drawString("ATK: " + selectedUnit.getAttack(), x, FRAME + 16 + pref * 4);
+            g.drawString("BOOST: " + selectedUnit.getBoost() + "/" + Entity.BOOST_MAX, x, FRAME + 16 + pref * 5);
 
             g.drawString("MOVE SCHEME:", x, FRAME + 16 + pref * 7);
-            g.drawImage(selectionUnit1.getMoveScheme(), x, FRAME + 16 + pref * 7 + 8, this);
+            g.drawImage(selectedUnit.getMoveScheme(), x, FRAME + 16 + pref * 7 + 8, this);
+        } else {
+            g.drawString("Select a unit", x + pref / 16, FRAME + pref);
+
         }
+        g.setColor(currentColor);
+        g.drawRect(cursor.x * Tile.WIDTH + FRAME, cursor.y * Tile.HEIGHT + FRAME, cursor.width, cursor.height);
+        g.drawRect(cursor.x * Tile.WIDTH + FRAME + 2, cursor.y * Tile.HEIGHT + FRAME + 2, cursor.width - 4, cursor.height - 4);
     }
 
     public GameClient getGameClient() {

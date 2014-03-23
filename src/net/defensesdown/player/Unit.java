@@ -61,20 +61,21 @@ public class Unit extends Entity {
 
     @Override
     public void paint(Graphics g) {
-//        System.out.println("" + getX() + ":" + getY() + ":" + getOwner());
+        final int ux2 = getX() * Tile.WIDTH + (Tile.WIDTH / 2 - sprite.getWidth() / 2) + Game.FRAME;
+        final int uy2 = getY() * Tile.HEIGHT + (Tile.HEIGHT / 2 - sprite.getHeight() / 2) + Game.FRAME;
 
-        final int x = getX() * Tile.WIDTH + Game.FRAME;
-        final int y = getY() * Tile.HEIGHT + Game.FRAME;
+        final int ux = getX() * Tile.WIDTH + Game.FRAME;
+        final int uy = getY() * Tile.HEIGHT + Game.FRAME;
 
-        g.drawImage(sprite, x, y, null);
+        g.drawImage(sprite, ux2, uy2, null);
 
         if (getOwner() == GameClient.BLACK) {
             g.setColor(new Color(0, 0, 0));
         } else if (getOwner() == GameClient.WHITE) {
             g.setColor(new Color(255, 255, 255));
         }
-        g.drawRect(x, y, Tile.WIDTH, Tile.HEIGHT);
-        g.drawRect(x + 1, y + 1, Tile.WIDTH - 2, Tile.HEIGHT - 2);
+        g.drawRect(ux, uy, Tile.WIDTH, Tile.HEIGHT);
+        g.drawRect(ux + 2, uy + 2, Tile.WIDTH - 4, Tile.HEIGHT - 4);
 
     }
 
@@ -83,7 +84,7 @@ public class Unit extends Entity {
     }
 
     public boolean isCellAvailable(int cx, int cy, int hx, int hy) {
-        int[][] map = new int[8][8];
+        int[][] map = new int[Game.BWIDTH][Game.BHEIGHT];
         setValue(map, hx - 1, hy - 1, movementScheme[0]);
         setValue(map, hx, hy - 1, movementScheme[1]);
         setValue(map, hx + 1, hy - 1, movementScheme[2]);
@@ -110,7 +111,7 @@ public class Unit extends Entity {
     }
 
     private void setValue(int[][] map, int x, int y, int value) {
-        if (x >= 0 && y >= 0 && x <= 7 && y <= 7) {
+        if (x >= 0 && y >= 0 && x <= Game.BWIDTH - 1 && y <= Game.BHEIGHT - 1) {
             map[x][y] = value;
         }
     }
