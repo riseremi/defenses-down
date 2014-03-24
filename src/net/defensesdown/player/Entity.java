@@ -41,7 +41,7 @@ public abstract class Entity extends DrawableGameComponent {
         this.maxHp = maxHp;
     }
 
-    private void setHp(int hp) {
+    protected void setHp(int hp) {
         this.hp = hp;
     }
 

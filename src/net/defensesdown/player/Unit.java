@@ -5,6 +5,9 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import net.defensesdown.framework.network.Client;
+import net.defensesdown.framework.network.messages.Message;
+import net.defensesdown.framework.network.messages.MessageDealDamage;
 import net.defensesdown.main.DefensesDown;
 import net.defensesdown.screens.Game;
 import net.defensesdown.world.Tile;
@@ -78,13 +81,17 @@ public class Unit extends Entity {
         g.drawRect(ux, uy, Tile.WIDTH, Tile.HEIGHT);
         g.drawRect(ux + 2, uy + 2, Tile.WIDTH - 4, Tile.HEIGHT - 4);
 
+        int hpWidth = getHp() * (Tile.WIDTH - 2) / getMaxHp();
+        g.setColor(getHp() < getMaxHp() / 3 ? Color.RED : Color.GREEN);
+        g.fillRect(ux + 1, uy + Tile.WIDTH - Tile.HEIGHT / 10, hpWidth, Tile.HEIGHT / 10);
+
     }
 
     public BufferedImage getMoveScheme() {
         return moveScheme;
     }
 
-    public boolean isCellAvailable(int cx, int cy, int hx, int hy) {
+    public int[][] getAppliedMovementScheme(int hx, int hy) {
         int[][] map = new int[Game.BWIDTH][Game.BHEIGHT];
         setValue(map, hx - 1, hy - 1, movementScheme[0]);
         setValue(map, hx, hy - 1, movementScheme[1]);
@@ -98,15 +105,19 @@ public class Unit extends Entity {
         setValue(map, hx, hy + 1, movementScheme[7]);
         setValue(map, hx + 1, hy + 1, movementScheme[8]);
 
-        return map[cx][cy] == 1;
+        return map;
+    }
+
+    public boolean isCellAvailable(int cx, int cy, int hx, int hy) {
+        return getAppliedMovementScheme(hx, hy)[cx][cy] == 1;
     }
 
     public void drawMovement(int[][] m, Graphics g) {
-        g.setColor(new Color(200, 0, 0, 100));
+        g.setColor(new Color(0, 0, 0, 100));
         for (int i = 0; i < m.length; i++) {
             for (int j = 0; j < m.length; j++) {
                 if (m[i][j] != 0) {
-                    g.fillRect(i * Tile.WIDTH, j * Tile.HEIGHT, Tile.WIDTH, Tile.HEIGHT);
+                    g.fillRect(i * Tile.WIDTH + Game.FRAME, j * Tile.HEIGHT + Game.FRAME, Tile.WIDTH, Tile.HEIGHT);
                 }
             }
         }
@@ -129,6 +140,19 @@ public class Unit extends Entity {
     @Override
     public String toString() {
         return getType().name() + " " + getHp() + " " + getOwner();
+    }
+
+    public void dealPureDamage(int damage) {
+        setHp(getHp() - damage);
+        System.out.println("DEALED LEL " + damage + "/" + getHp());
+    }
+
+    public void dealDamage(int damage) {
+        try {
+            Message msg = new MessageDealDamage(getId(), damage);
+            Client.getInstance().send(msg);
+        } catch (IOException ex) {
+        }
     }
 
 }

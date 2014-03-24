@@ -4,6 +4,7 @@ import java.io.IOException;
 import net.defensesdown.framework.network.messages.Message;
 import net.defensesdown.framework.network.messages.MessageConnected;
 import net.defensesdown.framework.network.messages.MessageCreateUnit;
+import net.defensesdown.framework.network.messages.MessageDealDamage;
 import net.defensesdown.framework.network.messages.MessageSetPlayerId;
 import net.defensesdown.framework.network.messages.MessageSetPosition;
 import net.defensesdown.framework.network.messages.MessageSwapTeams;
@@ -123,6 +124,11 @@ public class Protocol {
             case END_TURN:
                 DefensesDown.getFrames()[0].setTitle("Defenses Down - Your turn");
                 game.setMyTurn(!game.isMyTurn());
+                break;
+            case DEAL_DAMAGE:
+                MessageDealDamage messageDealDamage = ((MessageDealDamage) message);
+                game.getUnits().get(messageDealDamage.getId()).dealPureDamage(messageDealDamage.getDamage());
+                game.repaint();
                 break;
         }
     }

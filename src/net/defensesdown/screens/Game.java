@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import net.defensesdown.framework.network.Client;
 import net.defensesdown.framework.network.messages.Message;
+import net.defensesdown.framework.network.messages.MessageDealDamage;
 import net.defensesdown.framework.network.messages.MessageEndTurn;
 import net.defensesdown.framework.network.messages.MessageSetPosition;
 import net.defensesdown.main.DefensesDown;
@@ -114,6 +115,7 @@ public class Game extends JPanel implements KeyListener {
             mode = Mode.SELECT;
             currentColor = SELECTION_COLOR;
             pressed = true;
+            selectedUnit.dealDamage(3);
             repaint();
         }
 
@@ -131,12 +133,9 @@ public class Game extends JPanel implements KeyListener {
             } else if (mode == Mode.PLACE_UNIT) {
                 final int x = selectedUnit.getX();
                 final int y = selectedUnit.getY();
-//                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 if (getSelectedUnit(cursor.x, cursor.y) == null || (getSelectedUnit(cursor.x, cursor.y).getX() == x
                         && (getSelectedUnit(cursor.x, cursor.y).getY() == y))) {
                     try {
-                        System.out.println("x: " + x + " y: " + y);
-                        System.out.println("сx: " + cursor.x + " сy: " + cursor.y);
                         System.out.println();
                         if (selectedUnit.isCellAvailable(cursor.x, cursor.y, x, y)) {
                             mode = Mode.SELECT;
@@ -157,8 +156,26 @@ public class Game extends JPanel implements KeyListener {
                     } catch (IOException ex) {
                     }
                     repaint();
+                } else if (getSelectedUnit(cursor.x, cursor.y) != null) {
+                    Unit temp = getSelectedUnit(cursor.x, cursor.y);
+                    if (!temp.isOwned()) {
+                        try {
+                            Message msg = new MessageDealDamage(temp.getId(), temp.getAttack());
+                            Client.getInstance().send(msg);
+
+                            mode = Mode.SELECT;
+                            currentColor = SELECTION_COLOR;
+                            pressed = true;
+
+                            msg = new MessageEndTurn();
+                            Client.getInstance().send(msg);
+
+                            DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
+                            myTurn = false;
+                        } catch (IOException ex) {
+                        }
+                    }
                 }
-//                }
             }
         }
     }
@@ -178,6 +195,10 @@ public class Game extends JPanel implements KeyListener {
 
         if (mode == Mode.SELECT) {
             selectedUnit = getSelectedUnit(cursor.x, cursor.y);
+        }
+
+        if (mode == Mode.PLACE_UNIT) {
+            selectedUnit.drawMovement(selectedUnit.getAppliedMovementScheme(selectedUnit.getX(), selectedUnit.getY()), g);
         }
 
         int x = GWIDTH - SIDEBAR_WIDTH + FRAME;
