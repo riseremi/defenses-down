@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -21,6 +23,7 @@ import net.defensesdown.player.GameClient;
  * User: riseremi Date: 18.03.14 Time: 3:04
  */
 public class Lobby extends JPanel implements ActionListener {
+
     public static final Random rnd = new Random();
     private JButton host = new JButton("Host");
     private JButton join = new JButton("Join");
@@ -81,7 +84,10 @@ public class Lobby extends JPanel implements ActionListener {
             unitsList.add(new GameClient(name.getText(), GameClient.BLACK));
             revalidateList();
 
-            Server.getInstance();
+            try {
+                Server.getInstance();
+            } catch (IOException ex) {
+            }
             //Client.getInstance();
             try {
                 Client.getInstance().send(new MessageConnected(name.getText(), GameClient.BLACK));

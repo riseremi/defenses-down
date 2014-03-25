@@ -20,6 +20,6 @@ public class Message implements Serializable {
     public enum Type {
 
         VOID, CONNECTION, SET_POSITION, CREATE_UNIT, SWAP_TEAMS, START_GAME,
-        SET_PLAYER_ID, CREATE_GAME_CLIENT, END_TURN, DEAL_DAMAGE,
+        SET_PLAYER_ID, CREATE_GAME_CLIENT, END_TURN, DEAL_DAMAGE, DELETE_UNIT
     }
 }

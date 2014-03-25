@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Time: 1:39
  */
 public abstract class GameComponent implements Serializable {
-    private boolean enabled;
+    private boolean enabled = true;
 
     public abstract void update();
 

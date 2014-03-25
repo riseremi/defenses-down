@@ -5,6 +5,7 @@ import net.defensesdown.framework.network.messages.Message;
 import net.defensesdown.framework.network.messages.MessageConnected;
 import net.defensesdown.framework.network.messages.MessageCreateUnit;
 import net.defensesdown.framework.network.messages.MessageDealDamage;
+import net.defensesdown.framework.network.messages.MessageDeleteUnit;
 import net.defensesdown.framework.network.messages.MessageSetPlayerId;
 import net.defensesdown.framework.network.messages.MessageSetPosition;
 import net.defensesdown.framework.network.messages.MessageSwapTeams;
@@ -36,13 +37,13 @@ public class Protocol {
                     DefensesDown.getLobby().getUnitsList().add(new GameClient(messageConnected.getName(), messageConnected.getFraction()));
                     DefensesDown.getLobby().revalidateList();
 
-                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 0, 7, id1++, id));
-                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, 1, 7, id1++, id));
-                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 2, 7, id1++, id));
+                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, 7, 0, id1++, id));
 
-                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 5, 7, id1++, id));
-                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 6, 7, id1++, id));
-                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 7, 7, id1++, id));
+                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 6, 0, id1++, id));
+                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 7, 1, id1++, id));
+                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 4, 0, id1++, id));
+                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 5, 2, id1++, id));
+                    Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 7, 3, id1++, id));
 
                     for (int i = 0; i < Server.getInstance().getUnits().size(); i++) {
                         Unit unit = Server.getInstance().getUnits().get(i);
@@ -54,13 +55,14 @@ public class Protocol {
                     tempMessageConnected = (MessageConnected) message;
                 }
 
-                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 0, 0, id1++, id));
-                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, 1, 0, id1++, id));
-                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 2, 0, id1++, id));
+                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.TOWER, 0, 7, id1++, id));
 
-                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 5, 0, id1++, id));
-                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 6, 0, id1++, id));
-                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 7, 0, id1++, id));
+                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 0, 6, id1++, id));
+                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.RANGER, 1, 7, id1++, id));
+
+                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 0, 4, id1++, id));
+                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 3, 7, id1++, id));
+                Server.getInstance().getUnits().add((Unit) UnitCreator.getUnit(Entity.Type.KNIGHT, 2, 5, id1++, id));
                 break;
             default:
                 Server.getInstance().sendToAll(message);
@@ -124,10 +126,25 @@ public class Protocol {
             case END_TURN:
                 DefensesDown.getFrames()[0].setTitle("Defenses Down - Your turn");
                 game.setMyTurn(!game.isMyTurn());
+                game.setTurnText("YOUR TURN");
+                game.setDrawTurnText(true);
                 break;
             case DEAL_DAMAGE:
                 MessageDealDamage messageDealDamage = ((MessageDealDamage) message);
-                game.getUnits().get(messageDealDamage.getId()).dealPureDamage(messageDealDamage.getDamage());
+                final Unit toDamage = game.getUnits().get(messageDealDamage.getId());
+                if (toDamage == null) {
+                    game.repaint();
+                    break;
+                }
+                toDamage.dealPureDamage(messageDealDamage.getDamage());
+                game.repaint();
+                break;
+            case DELETE_UNIT:
+                MessageDeleteUnit messageDeleteUnit = ((MessageDeleteUnit) message);
+//                game.removeUnitById(messageDeleteUnit.getId());
+                Unit toRemove = game.getUnits().get(messageDeleteUnit.getId());
+                toRemove.disable();
+//                game.getUnits().remove(toRemove);
                 game.repaint();
                 break;
         }

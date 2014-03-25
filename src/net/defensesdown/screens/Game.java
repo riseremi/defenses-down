@@ -1,8 +1,11 @@
 package net.defensesdown.screens;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -28,6 +31,7 @@ import net.defensesdown.world.World;
  */
 public class Game extends JPanel implements KeyListener {
 
+    public static boolean KOSTYL = true;
     public static final int BWIDTH = 8, BHEIGHT = 8;
     public static int SIDEBAR_WIDTH, SIDEBAR_HEIGHT;
     public static int GWIDTH;
@@ -47,6 +51,24 @@ public class Game extends JPanel implements KeyListener {
     private boolean myTurn;
     private final static String TILES_NORMAL = "/res/tiles.png";
     private final static String TILES_HD = "/res/tilesHD.png";
+    private String turnText;
+    private boolean drawTurnText;
+
+    public boolean isDrawTurnText() {
+        return drawTurnText;
+    }
+
+    public void setDrawTurnText(boolean drawTurnText) {
+        this.drawTurnText = drawTurnText;
+    }
+
+    public String getTurnText() {
+        return turnText;
+    }
+
+    public void setTurnText(String turnText) {
+        this.turnText = turnText;
+    }
 
     public Game(boolean isHD) {
         Tile.init(isHD);
@@ -110,12 +132,14 @@ public class Game extends JPanel implements KeyListener {
             repaint();
         }
 
-        //kostyl
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+        //kostyl + secret damage button (BWGHAHAHAHAHAH OAK YOU ARE THE LIVING DEAD)
+        if (e.getKeyCode() == KeyEvent.VK_F && e.isAltDown() && e.isShiftDown()) {
             mode = Mode.SELECT;
             currentColor = SELECTION_COLOR;
             pressed = true;
-            selectedUnit.dealDamage(3);
+            if (selectedUnit != null) {
+                selectedUnit.dealDamage(10);
+            }
             repaint();
         }
 
@@ -150,6 +174,9 @@ public class Game extends JPanel implements KeyListener {
                                 Client.getInstance().send(msg);
 
                                 DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
+                                setTurnText("ENEMY TURN");
+                                setDrawTurnText(true);
+
                                 myTurn = false;
                             }
                         }
@@ -180,19 +207,40 @@ public class Game extends JPanel implements KeyListener {
         }
     }
 
+    public void drawTest(String text, int x, int y, Graphics g2) throws InterruptedException {
+        Graphics2D g = (Graphics2D) g2;
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        final int width = Game.GWIDTH + Game.FRAME * 2;
+        Font fontOld = g.getFont();
+        Font font = new Font("Verdana", Font.PLAIN, 36);
+        g.setFont(font);
+        int textWidth = g.getFontMetrics(font).stringWidth(text);
+        int textHeight = g.getFontMetrics(font).getHeight() / 3 * 4; //supah kostyl needs to center vertical align
+        int centerX = width / 2 - textWidth / 2;
+
+        g.setColor(new Color(0, 0, 0, 255));
+        g.fillRect(x, y, width, 96);
+        g.setColor(new Color(255, 255, 255, 255));
+        g.drawString(text, centerX, y + textHeight);
+    }
+
     @Override
     public void keyReleased(KeyEvent e) {
         pressed = false;
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g2) {
+        Graphics2D g = (Graphics2D) g2;
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         world.paint(g);
 
-        for (Unit unit : units) {
-            unit.paint(g);
+        if (Game.KOSTYL) {
+            for (Unit unit : units) {
+                unit.paint(g);
+            }
         }
-
         if (mode == Mode.SELECT) {
             selectedUnit = getSelectedUnit(cursor.x, cursor.y);
         }
@@ -225,6 +273,17 @@ public class Game extends JPanel implements KeyListener {
         g.setColor(currentColor);
         g.drawRect(cursor.x * Tile.WIDTH + FRAME, cursor.y * Tile.HEIGHT + FRAME, cursor.width, cursor.height);
         g.drawRect(cursor.x * Tile.WIDTH + FRAME + 2, cursor.y * Tile.HEIGHT + FRAME + 2, cursor.width - 4, cursor.height - 4);
+
+        if (isDrawTurnText()) {
+            try {
+//                drawTest(turnText, 0, 96, g2);
+                g.drawString(turnText, FRAME + pref, FRAME + pref);
+                repaint();
+                Thread.sleep(1000L);
+                setDrawTurnText(false);
+            } catch (InterruptedException ex) {
+            }
+        }
     }
 
     public GameClient getGameClient() {
@@ -253,14 +312,22 @@ public class Game extends JPanel implements KeyListener {
     }
 
     private Unit getSelectedUnit(int x, int y) {
+        Game.KOSTYL = false;
         for (Unit unit : units) {
-            if (unit.getX() == x) {
-                if (unit.getY() == y) {
-                    return unit;
-                }
+            if (unit.getX() == x && unit.getY() == y && unit.isEnabled()) {
+                Game.KOSTYL = true;
+                return unit;
             }
         }
+        Game.KOSTYL = true;
         return null;
     }
 
+//    public void removeUnitById(int id) {
+//        for (Unit unit : units) {
+//            if (unit.getId() == id) {
+//                units.remove(unit);
+//            }
+//        }
+//    }
 }

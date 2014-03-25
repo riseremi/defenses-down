@@ -46,13 +46,9 @@ public class Server {
         t.start();
     }
 
-    public static Server getInstance() {
+    public static synchronized Server getInstance() throws IOException {
         if (instance == null) {
-            try {
-                instance = new Server(7777);
-                return instance;
-            } catch (IOException ex) {
-            }
+            instance = new Server(7777);
         }
         return instance;
     }
