@@ -183,23 +183,35 @@ public class Game extends JPanel implements KeyListener {
                     } catch (IOException ex) {
                     }
                     repaint();
-                } else if (getSelectedUnit(cursor.x, cursor.y) != null) {
+                } else if (getSelectedUnit(cursor.x, cursor.y) != null) { //attack unit
                     Unit temp = getSelectedUnit(cursor.x, cursor.y);
-                    if (!temp.isOwned()) {
-                        try {
-                            Message msg = new MessageDealDamage(temp.getId(), temp.getAttack());
-                            Client.getInstance().send(msg);
+                    //radius
+                    int radius = selectedUnit.getAttackRadius();
+                    int destinationTileX = temp.getX();
+                    int destinationTileY = temp.getY();
+                    int unitX = selectedUnit.getX();
+                    int unitY = selectedUnit.getY();
 
-                            mode = Mode.SELECT;
-                            currentColor = SELECTION_COLOR;
-                            pressed = true;
+                    boolean dx = Math.abs(unitX - destinationTileX) <= radius;
+                    boolean dy = Math.abs(unitY - destinationTileY) <= radius;
 
-                            msg = new MessageEndTurn();
-                            Client.getInstance().send(msg);
+                    if (dx && dy) {
+                        if (!temp.isOwned()) {
+                            try {
+                                Message msg = new MessageDealDamage(temp.getId(), selectedUnit.getAttack());
+                                Client.getInstance().send(msg);
 
-                            DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
-                            myTurn = false;
-                        } catch (IOException ex) {
+                                mode = Mode.SELECT;
+                                currentColor = SELECTION_COLOR;
+                                pressed = true;
+
+                                msg = new MessageEndTurn();
+                                Client.getInstance().send(msg);
+
+                                DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
+                                myTurn = false;
+                            } catch (IOException ex) {
+                            }
                         }
                     }
                 }
@@ -263,9 +275,10 @@ public class Game extends JPanel implements KeyListener {
             g.drawString("DEF: " + selectedUnit.getDef(), x, FRAME + 16 + pref * 3);
             g.drawString("ATK: " + selectedUnit.getAttack(), x, FRAME + 16 + pref * 4);
             g.drawString("BOOST: " + selectedUnit.getBoost() + "/" + Entity.BOOST_MAX, x, FRAME + 16 + pref * 5);
+            g.drawString("ATK RADIUS: " + selectedUnit.getAttackRadius(), x, FRAME + 16 + pref * 6);
 
-            g.drawString("MOVE SCHEME:", x, FRAME + 16 + pref * 7);
-            g.drawImage(selectedUnit.getMoveScheme(), x, FRAME + 16 + pref * 7 + 8, this);
+            g.drawString("MOVE SCHEME:", x, FRAME + 16 + pref * 8);
+            g.drawImage(selectedUnit.getMoveScheme(), x, FRAME + 16 + pref * 8 + 8, this);
         } else {
             g.drawString("Select a unit", x + pref / 16, FRAME + pref);
 
@@ -274,16 +287,16 @@ public class Game extends JPanel implements KeyListener {
         g.drawRect(cursor.x * Tile.WIDTH + FRAME, cursor.y * Tile.HEIGHT + FRAME, cursor.width, cursor.height);
         g.drawRect(cursor.x * Tile.WIDTH + FRAME + 2, cursor.y * Tile.HEIGHT + FRAME + 2, cursor.width - 4, cursor.height - 4);
 
-        if (isDrawTurnText()) {
-            try {
-//                drawTest(turnText, 0, 96, g2);
-                g.drawString(turnText, FRAME + pref, FRAME + pref);
-                repaint();
-                Thread.sleep(1000L);
-                setDrawTurnText(false);
-            } catch (InterruptedException ex) {
-            }
-        }
+//        if (isDrawTurnText()) {
+//            try {
+////                drawTest(turnText, 0, 96, g2);
+//                g.drawString(turnText, FRAME + pref, FRAME + pref);
+//                repaint();
+//                Thread.sleep(1000L);
+//                setDrawTurnText(false);
+//            } catch (InterruptedException ex) {
+//            }
+//        }
     }
 
     public GameClient getGameClient() {

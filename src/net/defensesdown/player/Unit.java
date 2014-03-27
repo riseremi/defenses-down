@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import net.defensesdown.framework.network.Client;
 import net.defensesdown.framework.network.Server;
@@ -43,10 +41,11 @@ public class Unit extends Entity {
     private BufferedImage moveScheme;
     private int[] movementScheme;
 
-    public Unit(String pathToSprite, int ownerId, int id, int x, int y, Type type) {
+    public Unit(String pathToSprite, int ownerId, int id, int x, int y, int attackRadius, Type type) {
         super(type, ownerId, id);
         setX(x);
         setY(y);
+        setAttackRadius(attackRadius);
 
         switch (type) {
             case KNIGHT:

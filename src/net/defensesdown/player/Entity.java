@@ -7,12 +7,14 @@ import net.defensesdown.world.Tile;
  * User: riseremi Date: 18.03.14 Time: 1:38
  */
 public abstract class Entity extends DrawableGameComponent {
+
     public static final int BOOST_MAX = 10;
     private int hp, maxHp, def, attack, boost;
     private int x, y, id;
     private Type type;
     private int owner;
     private MovingStyle movingStyle;
+    private int attackRadius;
 
     public Entity(Type type, int ownerId, int id) {
         this.owner = ownerId;
@@ -27,6 +29,14 @@ public abstract class Entity extends DrawableGameComponent {
         this.setAttack(statsBatch.getAttack());
         this.setMaxHp(statsBatch.getHp());
         this.setMovingStyle(statsBatch.getMovingStyle());
+    }
+
+    public int getAttackRadius() {
+        return attackRadius;
+    }
+
+    public void setAttackRadius(int attackRadius) {
+        this.attackRadius = attackRadius;
     }
 
     public int getHp() {
@@ -129,14 +139,17 @@ public abstract class Entity extends DrawableGameComponent {
     }
 
     public enum Type {
+
         VOID, KNIGHT, RANGER, TOWER
     }
 
     public enum Owner {
+
         PLAYER, ENEMY
     }
 
     public enum MovingStyle {
+
         PAWN, PAWN_WITH_DIAGONAL, NO_MOVE
     }
 }
