@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import net.defensesdown.framework.SoundEffect;
 import net.defensesdown.framework.network.Client;
 import net.defensesdown.framework.network.messages.Message;
 import net.defensesdown.framework.network.messages.MessageDealDamage;
@@ -81,6 +82,8 @@ public class Game extends JPanel implements KeyListener {
         String pathToTileset = isHD ? TILES_HD : TILES_NORMAL;
         cursor = new Rectangle(Tile.WIDTH, Tile.HEIGHT);
 
+        SoundEffect.init();
+
         try {
             world = new World(pathToTileset, BWIDTH, BHEIGHT);
             world.setLayerPosition(FRAME, FRAME);
@@ -138,7 +141,7 @@ public class Game extends JPanel implements KeyListener {
             currentColor = SELECTION_COLOR;
             pressed = true;
             if (selectedUnit != null) {
-                selectedUnit.dealDamage(10);
+                selectedUnit.dealDamage(999);
             }
             repaint();
         }
@@ -210,6 +213,9 @@ public class Game extends JPanel implements KeyListener {
 
                                 DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
                                 myTurn = false;
+
+                                cursor.x = selectedUnit.getX();
+                                cursor.y = selectedUnit.getY();
                             } catch (IOException ex) {
                             }
                         }
