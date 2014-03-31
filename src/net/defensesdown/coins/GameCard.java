@@ -1,4 +1,4 @@
-package net.defensesdown.cards;
+package net.defensesdown.coins;
 
 /**
  * User: riseremi

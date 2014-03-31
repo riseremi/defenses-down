@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import net.defensesdown.framework.GraphicsUtils;
 import net.defensesdown.framework.SoundEffect;
 import net.defensesdown.framework.network.Client;
 import net.defensesdown.framework.network.messages.Message;
@@ -105,6 +106,7 @@ public class Game extends JPanel implements KeyListener {
         } catch (IOException e) {
         }
         units = new ArrayList<>();
+        new Thread(new GraphicsUtils()).start();
     }
 
     @Override
@@ -141,7 +143,7 @@ public class Game extends JPanel implements KeyListener {
             currentColor = SELECTION_COLOR;
             pressed = true;
             if (selectedUnit != null) {
-                selectedUnit.dealDamage(999);
+                selectedUnit.dealDamage(10);
             }
             repaint();
         }
@@ -177,8 +179,9 @@ public class Game extends JPanel implements KeyListener {
                                 Client.getInstance().send(msg);
 
                                 DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
-                                setTurnText("ENEMY TURN");
-                                setDrawTurnText(true);
+                                //setTurnText("ENEMY TURN");
+                                GraphicsUtils.draw("ENEMY TURN", 0, 80, getGraphics());
+                                //setDrawTurnText(true);
 
                                 myTurn = false;
                             }
@@ -213,6 +216,7 @@ public class Game extends JPanel implements KeyListener {
 
                                 DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
                                 myTurn = false;
+                                GraphicsUtils.draw("YEYO", 0, 90, getGraphics());
 
                                 cursor.x = selectedUnit.getX();
                                 cursor.y = selectedUnit.getY();
