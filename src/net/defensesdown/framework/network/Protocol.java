@@ -102,8 +102,9 @@ public class Protocol {
             case START_GAME:
                 DefensesDown.startGame();
                 final int fraction2 = game.getGameClient().getFraction();
+                String fraction4 = game.getGameClient().getFraction() == GameClient.BLACK ? "BLACK" : "WHITE";
                 String title = fraction2 == GameClient.WHITE ? "Defenses Down - Your turn" : "Defenses Down - Enemy turn";
-                DefensesDown.getFrames()[0].setTitle(title);
+                DefensesDown.getFrames()[0].setTitle(fraction4 + " - " + title);
                 game.setMyTurn(fraction2 == GameClient.WHITE);
                 break;
             case SWAP_TEAMS:
@@ -124,7 +125,8 @@ public class Protocol {
                 game.repaint();
                 break;
             case END_TURN:
-                DefensesDown.getFrames()[0].setTitle("Defenses Down - Your turn");
+                String fraction3 = game.getGameClient().getFraction() == GameClient.BLACK ? "BLACK" : "WHITE";
+                DefensesDown.getFrames()[0].setTitle(fraction3 + " - Defenses Down - Your turn");
                 game.setMyTurn(!game.isMyTurn());
                 game.setTurnText("YOUR TURN");
                 game.setDrawTurnText(true);

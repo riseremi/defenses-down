@@ -11,6 +11,8 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import net.defensesdown.framework.GraphicsUtils;
@@ -83,8 +85,7 @@ public class Game extends JPanel implements KeyListener {
         String pathToTileset = isHD ? TILES_HD : TILES_NORMAL;
         cursor = new Rectangle(Tile.WIDTH, Tile.HEIGHT);
 
-        SoundEffect.init();
-
+        //SoundEffect.init();
         try {
             world = new World(pathToTileset, BWIDTH, BHEIGHT);
             world.setLayerPosition(FRAME, FRAME);
@@ -178,10 +179,11 @@ public class Game extends JPanel implements KeyListener {
                                 msg = new MessageEndTurn();
                                 Client.getInstance().send(msg);
 
-                                DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
-                                //setTurnText("ENEMY TURN");
+                                String fraction = gameClient.getFraction() == GameClient.BLACK ? "BLACK" : "WHITE";
+                                DefensesDown.getFrames()[0].setTitle(fraction + " - Defenses Down - Enemy turn");
+                                setTurnText("ENEMY TURN");
                                 GraphicsUtils.draw("ENEMY TURN", 0, 80, getGraphics());
-                                //setDrawTurnText(true);
+                                setDrawTurnText(true);
 
                                 myTurn = false;
                             }
@@ -214,7 +216,8 @@ public class Game extends JPanel implements KeyListener {
                                 msg = new MessageEndTurn();
                                 Client.getInstance().send(msg);
 
-                                DefensesDown.getFrames()[0].setTitle("Defenses Down - Enemy turn");
+                                String fraction = gameClient.getFraction() == GameClient.BLACK ? "BLACK" : "WHITE";
+                                DefensesDown.getFrames()[0].setTitle(fraction + " - Defenses Down - Enemy turn");
                                 myTurn = false;
                                 GraphicsUtils.draw("YEYO", 0, 90, getGraphics());
 
@@ -291,7 +294,6 @@ public class Game extends JPanel implements KeyListener {
             g.drawImage(selectedUnit.getMoveScheme(), x, FRAME + 16 + pref * 8 + 8, this);
         } else {
             g.drawString("Select a unit", x + pref / 16, FRAME + pref);
-
         }
         g.setColor(currentColor);
         g.drawRect(cursor.x * Tile.WIDTH + FRAME, cursor.y * Tile.HEIGHT + FRAME, cursor.width, cursor.height);
@@ -306,6 +308,13 @@ public class Game extends JPanel implements KeyListener {
 //                setDrawTurnText(false);
 //            } catch (InterruptedException ex) {
 //            }
+//        }
+//        if (isDrawTurnText()) {
+//            g.setColor(Color.BLACK);
+//            g.fillRect(0, 90, 500, 64);
+//            
+//            repaint();
+//
 //        }
     }
 

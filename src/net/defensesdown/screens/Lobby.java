@@ -68,7 +68,7 @@ public class Lobby extends JPanel implements ActionListener {
         this.add(start);
         start.addActionListener(this);
         start.setVisible(false);
-        //start.setEnabled(false);
+        start.setEnabled(false);
     }
 
     public void revalidateList() {
